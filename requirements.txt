@@ -1,0 +1,16 @@
+pandas
+numpy
+scikit-learn
+google-play-scraper
+transformers
+torch
+datasets
+accelerate
+nltk
+sastrawi
+gensim
+pyLDAvis
+matplotlib
+wordcloud
+streamlit
+tqdm

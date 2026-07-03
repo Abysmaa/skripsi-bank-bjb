@@ -1,0 +1,509 @@
+CATATAN PROYEK SKRIPSI
+Analisis Aspek Keamanan Aplikasi Digi bank bjb melalui Sentimen Ulasan
+Pengguna Menggunakan IndoBERT dan LDA studi kasus Google Play Store
+
+1. GAMBARAN UMUM PROYEK
+
+Proyek ini dibuat untuk menganalisis aspek keamanan aplikasi Digi bank bjb
+melalui ulasan pengguna.
+Fokus utama penelitian adalah:
+
+- mengetahui sentimen pengguna yang berkaitan dengan rasa aman dan keandalan
+  aplikasi
+- mengidentifikasi isu atau topik utama yang berhubungan dengan aspek keamanan
+  digital
+- memberi gambaran apakah keluhan pengguna berkaitan dengan login, aktivasi,
+  transaksi, jaringan, keamanan akun, atau pembukaan rekening
+
+Secara metodologis, proyek ini menggabungkan dua pendekatan:
+
+- IndoBERT untuk klasifikasi sentimen
+- LDA untuk pemodelan topik
+
+IndoBERT digunakan untuk menjawab pertanyaan:
+"Apakah review ini menunjukkan pengalaman yang positif atau negatif terhadap
+keamanan dan penggunaan aplikasi?"
+
+LDA digunakan untuk menjawab pertanyaan:
+"Kalau review negatif berkaitan dengan keamanan, masalah apa yang paling sering
+dibahas pengguna?"
+
+
+2. ALASAN PEMILIHAN METODE
+
+2.1 Alasan memilih IndoBERT
+
+IndoBERT dipilih karena merupakan model transformer yang dirancang untuk bahasa
+Indonesia. Model ini lebih baik daripada metode klasik berbasis frekuensi kata,
+karena mampu memahami konteks kalimat secara lebih baik.
+
+Contoh:
+Kalimat "aplikasi ini aman" dan "fitur keamanan malah bikin ribet" sama-sama
+mengandung kata yang berhubungan dengan keamanan, tetapi maknanya berbeda.
+Model seperti IndoBERT lebih mampu menangkap perbedaan konteks seperti itu.
+
+Keunggulan IndoBERT dalam proyek ini:
+
+- cocok untuk teks bahasa Indonesia
+- lebih kuat dalam memahami konteks kalimat
+- relevan untuk ulasan pengguna yang banyak mengandung variasi kata
+- lebih layak secara akademik sebagai metode utama skripsi
+
+2.2 Alasan memilih LDA
+
+LDA dipilih karena mampu menemukan topik tersembunyi dari kumpulan dokumen
+tanpa memerlukan label topik dari awal.
+
+Dalam proyek ini, setelah review diklasifikasikan dengan IndoBERT, review
+negatif yang relevan dengan keamanan kemudian dianalisis lagi dengan LDA agar
+diketahui tema utamanya.
+
+Keunggulan LDA dalam proyek ini:
+
+- membantu mengelompokkan keluhan pengguna terkait keamanan dan akses layanan
+- tidak hanya berhenti di sentimen, tetapi juga memberi interpretasi isi
+  keluhan
+- memperkuat pembahasan hasil penelitian
+
+
+3. TUJUAN PENELITIAN
+
+Tujuan penelitian yang dapat ditulis dalam skripsi:
+
+1. Menganalisis sentimen ulasan pengguna aplikasi Digi bank bjb menggunakan
+   model IndoBERT dengan fokus pada aspek keamanan layanan.
+2. Mengukur performa model IndoBERT dalam klasifikasi sentimen ulasan pengguna.
+3. Mengidentifikasi topik utama pada ulasan negatif yang berkaitan dengan
+   keamanan menggunakan metode LDA.
+4. Memberikan gambaran mengenai isu dominan yang memengaruhi persepsi pengguna
+   terhadap keamanan dan keandalan aplikasi Digi bank bjb.
+
+
+4. ALUR KERJA PROGRAM
+
+Alur kerja program secara umum:
+
+1. Mengambil data ulasan dari Google Play Store
+2. Membersihkan dan menormalkan teks
+3. Membuat semi-label dari skor review dan kata kunci
+4. Menyiapkan review yang perlu dicek manual
+5. Menggabungkan label manual dan label otomatis
+6. Melatih model IndoBERT
+7. Melakukan prediksi sentimen pada seluruh review
+8. Menjalankan LDA pada review negatif
+9. Menyajikan hasil dalam bentuk CSV, model, dan visualisasi
+
+
+5. PENJELASAN SETIAP MODUL PROGRAM
+
+5.1 scraper.py
+
+File ini digunakan untuk mengambil ulasan dari Google Play Store.
+Data mentah yang diambil antara lain:
+
+- review_id
+- user_name
+- score
+- content
+- tanggal review
+- versi aplikasi
+
+Output:
+data/raw/bjb_reviews_raw.csv
+
+Fungsi utamanya adalah menyediakan data mentah untuk diproses lebih lanjut.
+
+5.2 preprocessing.py
+
+File ini digunakan untuk membersihkan teks review.
+Tahapan yang dilakukan:
+
+- mengubah huruf menjadi lowercase
+- menghapus URL, mention, hashtag, emoji, dan karakter non-ASCII
+- menghapus karakter selain huruf, angka, dan spasi
+- merapikan spasi berlebih
+- membuang baris yang kosong setelah cleaning
+- menginfer label awal dari score review
+- menandai review yang relevan dengan aspek keamanan
+
+Output:
+data/processed/bjb_reviews_clean.csv
+
+Fungsi utamanya adalah menghasilkan kolom clean_content yang siap dipakai untuk
+training model, inferensi sentimen, dan ekstraksi topik keamanan.
+
+5.3 labeling.py
+
+File ini digunakan untuk membuat semi-label dan menyiapkan batch anotasi
+manual.
+
+Logika yang digunakan:
+
+- semi_label diambil dari inferred_label hasil preprocessing
+- manual_label disiapkan kosong untuk koreksi manual peneliti
+- semua review dengan score 3 dimasukkan ke batch anotasi
+- ditambah sampel acak 10% dari score 1-2 dan score 4-5
+
+Output:
+
+- data/processed/bjb_reviews_labeled.csv
+- data/processed/annotation_batches/batch_001.csv
+
+Fungsi utamanya adalah menyediakan label awal otomatis dan ruang koreksi manual
+secara efisien.
+
+5.4 finalize_labels.py
+
+File ini digunakan untuk menggabungkan hasil semi-label dengan manual_label
+dari file batch anotasi.
+
+Logikanya:
+
+- jika manual_label terisi, maka dipakai sebagai final_label
+- jika manual_label kosong, maka dipakai semi_label
+- hasil akhir dibersihkan dari baris yang tidak memiliki final_label
+
+Output:
+data/processed/bjb_reviews_labeled_final.csv
+
+Fungsi utamanya adalah menghasilkan dataset training final yang lebih layak.
+
+5.5 train_indobert.py
+
+File ini adalah inti klasifikasi sentimen untuk memetakan persepsi pengguna
+terhadap keamanan dan pengalaman penggunaan aplikasi.
+Tahapan yang dilakukan:
+
+- membaca dataset final
+- memilih kolom label
+- membuang data kosong
+- menghapus duplikasi
+- melakukan balancing jika diperlukan
+- membagi data menjadi train, validation, dan test
+- tokenisasi dengan tokenizer IndoBERT
+- fine-tuning model
+- evaluasi model
+- menyimpan model dan ringkasan hasil
+
+Output utama:
+
+- models/indobert/model.safetensors
+- models/indobert/config.json
+- models/indobert/training_summary.json
+- models/indobert/test_predictions.csv
+
+5.6 sentiment.py
+
+File ini digunakan untuk menjalankan model IndoBERT yang sudah dilatih, lalu
+memprediksi sentimen semua review.
+
+Output:
+data/final/bjb_sentiment_result.csv
+
+Kolom penting:
+
+- predicted_label
+- confidence
+- true_label
+
+5.7 lda_model.py
+
+File ini digunakan untuk pemodelan topik aspek keamanan.
+LDA difokuskan pada review negatif yang berhubungan dengan aspek keamanan atau
+akses, misalnya kata:
+
+- login
+- aktivasi
+- password
+- pin
+- otp
+- rekening
+- transaksi
+- transfer
+
+Tahapan LDA:
+
+- memilih review negatif yang relevan
+- mengubah teks menjadi token
+- menghapus custom stopword domain mobile banking
+- membuat dictionary dan corpus
+- melatih model LDA
+- menyimpan kata dominan tiap topik
+
+Output:
+
+- models/lda/lda_topic_terms.csv
+- models/lda/lda_document_topics.csv
+- models/lda/lda_visualization.html
+- models/lda/lda_summary.json
+
+5.8 visualization.py
+
+File ini digunakan untuk membuat visualisasi hasil.
+
+Output:
+
+- distribusi sentimen
+- wordcloud positif
+- wordcloud negatif
+- grafik topik LDA
+
+Lokasi output:
+data/final/visualizations/
+
+5.9 app.py
+
+File ini adalah dashboard Streamlit untuk presentasi hasil.
+Isi dashboard:
+
+- overview hasil
+- eksplorasi data
+- evaluasi model
+- topik LDA terkait keamanan
+- kesimpulan sidang
+- demo prediksi review baru
+
+
+6. ALUR METODE SECARA SEDERHANA
+
+Jika ditulis dalam bahasa yang sederhana:
+
+- Data review diambil dari Google Play
+- Teks dibersihkan agar siap dianalisis
+- Label sentimen awal dibuat dari skor review
+- Review yang meragukan dicek manual
+- Dataset final dipakai untuk melatih IndoBERT
+- IndoBERT memprediksi sentimen seluruh review sebagai pintu masuk pembacaan
+  persepsi keamanan
+- Review negatif yang relevan dianalisis kembali dengan LDA
+- LDA menemukan topik keamanan yang paling sering dibahas pengguna
+
+
+7. PENJELASAN METODE UNTUK BAB 3
+
+Kalimat yang bisa dipakai:
+
+Penelitian ini menggunakan pendekatan text mining dan natural language
+processing untuk menganalisis aspek keamanan aplikasi Digi bank bjb melalui
+ulasan pengguna. Metode utama yang digunakan adalah IndoBERT untuk
+klasifikasi sentimen dan Latent Dirichlet Allocation (LDA) untuk pemodelan
+topik.
+
+IndoBERT digunakan karena merupakan model berbasis transformer yang telah
+dioptimalkan untuk bahasa Indonesia, sehingga lebih mampu memahami konteks teks
+dibandingkan metode klasik. Setelah sentimen ulasan diklasifikasikan, metode
+LDA diterapkan pada review negatif yang berkaitan dengan keamanan untuk
+mengidentifikasi topik utama yang paling sering muncul dalam keluhan pengguna.
+
+Tahapan penelitian meliputi pengumpulan data, preprocessing, labeling,
+finalisasi dataset, training model IndoBERT, inferensi sentimen, pemodelan
+topik keamanan menggunakan LDA, dan visualisasi hasil.
+
+
+8. HASIL UTAMA PROYEK
+
+Berdasarkan hasil terbaru:
+
+- jumlah review mentah hasil scraping dan merge: 6.431
+- jumlah review yang berhasil diprediksi: 6.396
+- review positif: 3.479
+- review negatif: 2.917
+
+Persentase:
+
+- positif: 54,39%
+- negatif: 45,61%
+
+Performa model IndoBERT:
+
+- akurasi validation: 0,9358
+- F1 weighted validation: 0,9357
+- akurasi test: 0,9275
+- F1 weighted test: 0,9275
+
+Artinya:
+
+- model cukup baik dalam membedakan review positif dan negatif
+- sentimen positif masih dominan
+- tetapi keluhan negatif tetap signifikan dan relevan untuk membahas aspek
+  keamanan dan keandalan layanan
+- hasil terbaru lebih representatif karena menggunakan dataset yang jauh lebih
+  besar dibanding eksperimen awal
+
+
+9. HASIL TOPIC MODELING
+
+LDA menghasilkan 4 topik utama pada review negatif, yaitu:
+
+- jumlah dokumen LDA: 1.065
+
+Topik 0: Aktivasi, pembukaan rekening, dan koneksi
+Topik ini berkaitan dengan aktivasi, buka rekening, koneksi terputus, pulsa,
+gagal login, dan hambatan akses awal layanan.
+
+Topik 1: Aktivasi pasca-update dan jaringan
+Topik ini berkaitan dengan update aplikasi, jaringan, nomor akun, aktivasi
+ulang, dan pengguna yang gagal masuk setelah perubahan sistem.
+
+Topik 2: Login, password, dan hambatan akses
+Topik ini berkaitan dengan login, password, akses yang ribet, jaringan, dan
+kesulitan pengguna untuk masuk kembali ke akun mereka.
+
+Topik 3: Transaksi, saldo, dan transfer
+Topik ini berkaitan dengan transaksi yang lambat atau gagal, saldo, transfer,
+dan indikator layanan yang membuat pengguna khawatir terhadap dana.
+
+Makna hasil ini:
+
+- keluhan pengguna tidak tersebar secara acak
+- ada pola yang jelas pada aspek login, aktivasi, transaksi, rekening, dan
+  kepercayaan terhadap akses akun
+- hasil LDA memperkuat interpretasi hasil sentimen dalam konteks keamanan
+
+
+10. INTERPRETASI AKADEMIK
+
+Makna dari hasil proyek ini adalah:
+
+1. Sentimen positif memang dominan, yang berarti sebagian besar pengguna masih
+   merasakan manfaat aplikasi.
+2. Namun, sentimen negatif tetap tinggi dan menunjukkan adanya masalah pada
+   proses inti layanan digital yang berkaitan dengan rasa aman pengguna.
+3. Proses inti yang paling sensitif adalah:
+   - login
+   - aktivasi
+   - transaksi
+   - pembukaan rekening
+   - kejelasan status dana
+4. Dengan demikian, aspek keamanan menurut pengguna tidak hanya berarti akun
+   terlindungi, tetapi juga proses akses, verifikasi, dan transaksi harus
+   lancar, stabil, dan dapat dipercaya.
+5. Dengan dataset terbaru yang lebih besar, hasil penelitian menjadi lebih kuat
+   secara representatif dibanding eksperimen awal yang hanya memakai data jauh
+   lebih sedikit.
+
+
+11. POIN YANG BISA DIPAKAI UNTUK BAB 4
+
+Poin pembahasan hasil:
+
+- dominasi sentimen positif menunjukkan aplikasi masih diterima pengguna
+- proporsi negatif yang cukup tinggi menunjukkan ada persoalan layanan yang
+  belum stabil pada titik yang sensitif terhadap keamanan
+- model IndoBERT menunjukkan performa baik sehingga layak digunakan dalam
+  analisis sentimen ulasan
+- LDA berhasil mengelompokkan review negatif ke dalam beberapa isu yang relevan
+- isu dominan pengguna berkaitan dengan aktivasi, login, transaksi, dan
+  pembukaan rekening sebagai bagian dari pengalaman keamanan digital
+- dashboard Streamlit memperkuat penyajian hasil secara interaktif
+
+Kalimat yang bisa dipakai:
+
+Hasil penelitian menunjukkan bahwa sentimen positif masih lebih dominan
+daripada sentimen negatif. Meskipun demikian, proporsi sentimen negatif tetap
+besar dan menunjukkan adanya keluhan yang signifikan. Berdasarkan hasil LDA,
+keluhan tersebut terutama berkaitan dengan aktivasi, login, transaksi, saldo,
+dan pembukaan rekening. Temuan ini menunjukkan bahwa kualitas pengalaman
+pengguna pada proses inti layanan digital masih menjadi faktor yang sangat
+memengaruhi persepsi terhadap keamanan dan keandalan aplikasi.
+
+
+12. POIN YANG BISA DIPAKAI UNTUK BAB 5
+
+Kesimpulan:
+
+- IndoBERT efektif digunakan untuk klasifikasi sentimen ulasan Digi bank bjb
+  sebagai dasar analisis aspek keamanan
+- LDA efektif digunakan untuk mengidentifikasi topik utama pada review negatif
+  yang berkaitan dengan keamanan
+- kombinasi IndoBERT dan LDA memberi hasil kuantitatif dan tematik sekaligus
+- keluhan utama pengguna berkaitan dengan aktivasi, login, transaksi, saldo,
+  transfer, dan pembukaan rekening
+
+Saran:
+
+- perbaiki alur aktivasi ulang dan pemulihan akun
+- tingkatkan kestabilan login dan transaksi
+- tingkatkan kejelasan pembaruan saldo dan status transfer
+- lengkapi data wilayah untuk pembukaan rekening
+- perjelas penanganan transaksi gagal agar tidak mengurangi rasa aman pengguna
+
+
+13. KELEBIHAN PROYEK INI
+
+- pipeline lengkap dari data mentah sampai visualisasi
+- ada proses manual review sehingga label lebih kuat
+- memakai metode modern yang relevan
+- tidak hanya klasifikasi sentimen, tetapi juga pemodelan topik keamanan
+- hasil bisa dipresentasikan melalui dashboard Streamlit
+
+
+14. KETERBATASAN PROYEK INI
+
+- model akhir menggunakan skema biner, sehingga kelas netral tidak menjadi
+  fokus utama
+- penamaan topik LDA tetap memerlukan interpretasi peneliti
+- ulasan singkat, ambigu, atau sarkas bisa tetap sulit dipahami model
+- belum ada baseline model pembanding klasik jika ingin diperkuat secara metodologis
+
+
+15. KALIMAT SINGKAT UNTUK MENJELASKAN PROYEK KE DOSEN
+
+Versi singkat:
+
+"Proyek ini menganalisis aspek keamanan aplikasi Digi bank bjb melalui ulasan
+pengguna dengan dua metode utama. IndoBERT digunakan untuk
+mengklasifikasikan sentimen review menjadi positif dan negatif, sedangkan LDA
+digunakan untuk menemukan topik utama dari review negatif yang berkaitan
+dengan keamanan. Hasilnya menunjukkan bahwa sentimen positif masih lebih
+dominan, tetapi keluhan pengguna terkonsentrasi pada masalah aktivasi, login,
+transaksi, saldo, transfer, dan pembukaan rekening."
+
+Versi lebih formal:
+
+"Penelitian ini menggunakan IndoBERT sebagai metode klasifikasi sentimen
+karena kemampuannya memahami konteks bahasa Indonesia secara lebih baik,
+serta menggunakan LDA untuk mengidentifikasi topik dominan pada review
+negatif yang berkaitan dengan keamanan. Kombinasi kedua metode tersebut
+memungkinkan analisis yang tidak hanya menunjukkan polaritas sentimen, tetapi
+juga menjelaskan isu utama yang mendasari persepsi pengguna terhadap keamanan
+dan keandalan aplikasi."
+
+
+16. FILE PENTING YANG PERLU DIINGAT
+
+- README.md
+- src/scraper.py
+- src/preprocessing.py
+- src/labeling.py
+- src/finalize_labels.py
+- src/train_indobert.py
+- src/sentiment.py
+- src/lda_model.py
+- src/visualization.py
+- data/final/bjb_sentiment_result.csv
+- models/indobert/training_summary.json
+- models/lda/lda_topic_terms.csv
+- RINGKASAN_HASIL.md
+- BAB4_HASIL_DAN_PEMBAHASAN.md
+- BAB5_KESIMPULAN_DAN_SARAN.md
+
+
+17. PENUTUP
+
+Inti proyek ini adalah:
+
+- IndoBERT dipakai untuk membaca sentimen pengguna terhadap keamanan dan
+  pengalaman penggunaan aplikasi
+- LDA dipakai untuk mengetahui isi keluhan pengguna yang paling berkaitan
+  dengan aspek keamanan
+- hasil akhirnya menunjukkan bahwa aplikasi masih dinilai positif oleh banyak
+  pengguna, tetapi ada beberapa masalah inti yang konsisten dan perlu dibenahi
+  pada login, aktivasi, transaksi, saldo, transfer, dan pembukaan rekening
+
+Catatan ini bisa dipakai sebagai dasar menulis:
+
+- Bab 1: latar belakang dan tujuan
+- Bab 3: metode penelitian
+- Bab 4: hasil dan pembahasan
+- Bab 5: kesimpulan dan saran

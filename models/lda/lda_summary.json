@@ -1,0 +1,12 @@
+{
+  "num_topics": 4,
+  "num_documents": 1065,
+  "dictionary_size": 727,
+  "output_files": [
+    "lda_model.gensim",
+    "lda_dictionary.gensim",
+    "lda_topic_terms.csv",
+    "lda_document_topics.csv",
+    "lda_visualization.html"
+  ]
+}

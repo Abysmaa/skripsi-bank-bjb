@@ -1,0 +1,231 @@
+CATATAN BIMBINGAN PROYEK
+Tanggal: 11 Mei 2026
+
+Judul:
+Analisis Sentimen dan Topic Modeling Aspek Keamanan Aplikasi Digi bank bjb
+menggunakan IndoBERT dan LDA
+
+1. Status progres proyek
+
+Proyek skripsi sudah sampai tahap hasil akhir dan implementasi. Pipeline yang
+sudah tersedia meliputi:
+
+- scraping ulasan Google Play Store
+- preprocessing teks dan infer label awal
+- semi-labeling dan anotasi manual
+- finalisasi dataset pelatihan
+- training IndoBERT untuk klasifikasi sentimen
+- inferensi sentimen pada seluruh dataset
+- topic modeling LDA untuk review negatif terkait keamanan
+- visualisasi hasil
+- dashboard Streamlit untuk presentasi hasil penelitian
+
+Artinya, proyek sudah bukan hanya tahap eksperimen model, tetapi sudah memiliki
+artefak lengkap yang bisa dipakai untuk bimbingan, penulisan skripsi, dan
+demonstrasi saat sidang.
+
+2. Ringkasan data terbaru
+
+Dataset mentah hasil scraping dan merge saat ini berjumlah 6.431 ulasan, dengan
+rentang tanggal:
+
+- paling awal: 2024-07-13T05:15:26
+- paling akhir: 2026-04-18T21:06:08
+
+Setelah preprocessing dan penghapusan baris kosong, data yang berhasil dipakai
+untuk analisis berjumlah 6.396 ulasan.
+
+Distribusi label final hasil preprocessing dan labeling:
+
+- negatif: 2.522
+- netral: 360
+- positif: 3.514
+
+Jumlah ulasan yang terdeteksi terkait aspek keamanan:
+
+- is_security = True: 580 ulasan
+
+3. Hasil inferensi sentimen terbaru
+
+Inferensi sentimen menggunakan model IndoBERT terbaru pada 6.396 ulasan
+menghasilkan:
+
+- prediksi positif: 3.479 review
+- prediksi negatif: 2.917 review
+
+Persentasenya:
+
+- positif: 54,39%
+- negatif: 45,61%
+
+Rata-rata confidence prediksi model:
+
+- 0,993
+
+Makna hasil ini adalah bahwa sentimen positif masih dominan, tetapi proporsi
+sentimen negatif tetap besar dan signifikan. Dengan data yang jauh lebih besar
+dibanding eksperimen awal, hasil ini memperlihatkan bahwa persepsi pengguna
+terhadap aplikasi Digi bank bjb cenderung terbelah antara kepuasan penggunaan
+dan keluhan terhadap proses layanan inti.
+
+4. Hasil evaluasi model IndoBERT terbaru
+
+Model IndoBERT dilatih ulang menggunakan dataset final terbaru dengan skema
+klasifikasi biner dan strategi undersample.
+
+Ukuran dataset training:
+
+- train: 3.175
+- validation: 794
+- test: 993
+
+Metrik evaluasi:
+
+- akurasi validation: 0,9358
+- F1 weighted validation: 0,9357
+- akurasi test: 0,9275
+- F1 weighted test: 0,9275
+
+Per kelas:
+
+- precision negatif: 0,9175
+- recall negatif: 0,9396
+- F1 negatif: 0,9284
+- precision positif: 0,9380
+- recall positif: 0,9153
+- F1 positif: 0,9265
+
+Confusion matrix:
+
+- 467 review negatif terklasifikasi benar sebagai negatif
+- 454 review positif terklasifikasi benar sebagai positif
+- 30 review negatif salah diprediksi sebagai positif
+- 42 review positif salah diprediksi sebagai negatif
+
+Interpretasinya, model tetap menunjukkan performa yang baik dan seimbang pada
+dua kelas utama. Meskipun akurasi terbaru sedikit lebih rendah dibanding
+eksperimen awal, model ini diuji pada dataset yang jauh lebih besar dan lebih
+representatif, sehingga hasilnya justru lebih kuat untuk dipertanggungjawabkan
+secara akademik.
+
+5. Hasil topic modeling LDA terbaru
+
+LDA dijalankan ulang pada review negatif yang relevan dengan keamanan dan
+akses layanan. Setelah perbaikan custom stopword, hasil topik menjadi lebih
+bersih dan lebih mudah diinterpretasikan.
+
+Jumlah dokumen LDA:
+
+- 1.065 dokumen
+
+Jumlah topik:
+
+- 4 topik
+
+Sebaran dokumen per topik:
+
+- Topik 0: 222 dokumen
+- Topik 1: 234 dokumen
+- Topik 2: 331 dokumen
+- Topik 3: 278 dokumen
+
+Top terms final:
+
+- Topik 0: aktivasi, buka, gabisa, rekening, koneksi, jelek, pulsa, gagal,
+  login, terputus
+- Topik 1: aktivasi, update, pulsa, jaringan, gagal, masuk, baru, rekening,
+  kali, nomor
+- Topik 2: login, aktivasi, susah, jaringan, salah, ribet, data, password,
+  masuk, ulang
+- Topik 3: transaksi, saldo, lama, transfer, rekening, gagal, sering, hijau,
+  hari, indikator
+
+Interpretasi topik:
+
+- Topik 0: masalah aktivasi, pembukaan rekening, koneksi, dan akses awal
+  layanan
+- Topik 1: aktivasi pasca-update, jaringan, nomor akun, dan kegagalan masuk
+- Topik 2: login, password, dan hambatan akses akun yang terasa ribet
+- Topik 3: transaksi, saldo, transfer, dan kestabilan layanan keuangan inti
+
+Makna utama dari hasil LDA tetap konsisten dengan temuan sebelumnya, yaitu
+keluhan pengguna tidak acak, melainkan terkonsentrasi pada proses inti seperti
+aktivasi, login, transaksi, rekening, saldo, dan akses akun.
+
+6. Dashboard Streamlit
+
+Dashboard Streamlit sudah aktif dan dapat dipakai untuk bimbingan atau sidang
+lokal melalui:
+
+- http://localhost:8501
+
+Fitur dashboard:
+
+- ringkasan distribusi sentimen terbaru
+- metrik evaluasi model IndoBERT terbaru
+- eksplorasi dataset hasil prediksi
+- wordcloud positif dan negatif
+- topik LDA dan contoh dokumen tiap topik
+- halaman saran untuk Bank BJB
+- halaman kesimpulan sidang
+- demo prediksi review baru
+
+Nilai tambah dashboard:
+
+- hasil penelitian dapat ditunjukkan secara interaktif
+- dosen dapat melihat hubungan langsung antara sentimen, performa model, dan
+  topik keluhan
+- visualisasi mempermudah penjelasan hasil Bab 4 dan Bab 5
+
+7. Inti pembahasan yang bisa disampaikan ke dosen pembimbing
+
+Kalimat ringkas yang bisa dipakai saat bimbingan:
+
+"Saat ini proyek sudah selesai sampai tahap hasil akhir dan sudah tersedia
+dashboard Streamlit untuk demonstrasi. Dataset yang dianalisis berjumlah 6.396
+ulasan. Hasil inferensi menunjukkan 3.479 ulasan positif dan 2.917 ulasan
+negatif. Model IndoBERT terbaru mencapai akurasi test 0,9275 dengan performa
+yang tetap seimbang pada dua kelas. Selain itu, LDA pada 1.065 dokumen review
+negatif berhasil memetakan empat isu utama, yaitu aktivasi dan akses awal,
+aktivasi pasca-update, login dan password, serta transaksi dan saldo. Dengan
+demikian, penelitian ini tidak hanya menunjukkan polaritas sentimen pengguna,
+tetapi juga menjelaskan isi keluhan utama secara tematik dan dapat
+dipresentasikan secara interaktif." 
+
+8. Poin interpretasi akademik
+
+Poin penting untuk ditekankan:
+
+- dataset terbaru jauh lebih besar daripada eksperimen awal, sehingga hasil
+  sekarang lebih representatif
+- sentimen positif masih dominan, tetapi sentimen negatif tetap tinggi dan
+  signifikan
+- masalah utama aplikasi berada pada proses inti, bukan fitur tambahan
+- keamanan dari sudut pandang pengguna berkaitan dengan login, aktivasi,
+  transaksi, saldo, dan kestabilan akses
+- IndoBERT efektif untuk klasifikasi sentimen bahasa Indonesia pada domain
+  mobile banking
+- LDA efektif untuk menjelaskan struktur keluhan pengguna secara tematik
+- dashboard Streamlit memperkuat implementasi hasil penelitian secara praktis
+
+9. Hal yang bisa ditanyakan saat bimbingan
+
+Beberapa hal yang bisa dikonfirmasi ke dosen:
+
+- apakah hasil terbaru ini perlu menggantikan seluruh angka lama di Bab 4,
+  Bab 5, dan slide sidang
+- apakah dashboard Streamlit perlu disebut sebagai implementasi hasil pada Bab 4
+- apakah perlu menambahkan screenshot dashboard pada lampiran skripsi
+- apakah perlu menambahkan perbandingan eksperimen awal vs hasil dataset terbaru
+- apakah topik LDA final ini sudah cukup kuat untuk pembahasan tematik
+
+10. Kesimpulan singkat
+
+Secara umum, proyek sudah berada pada tahap siap bimbingan dan siap
+dipresentasikan. Dataset, model IndoBERT, inferensi sentimen, topic modeling
+LDA, visualisasi, dan dashboard Streamlit semuanya sudah tersedia dan sudah
+diperbarui. Temuan utama menunjukkan bahwa pengguna masih cukup banyak memberi
+ulasan positif, tetapi keluhan besar tetap terpusat pada aktivasi, login,
+transaksi, rekening, saldo, dan kestabilan layanan. Kombinasi IndoBERT dan LDA
+berhasil memberikan hasil kuantitatif dan tematik yang layak dipakai sebagai
+inti pembahasan skripsi.
