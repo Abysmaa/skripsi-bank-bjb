@@ -15,10 +15,12 @@ if str(SRC_DIR) not in sys.path:
 
 from preprocessing import preprocess_text  # noqa: E402
 
+DEPENDENCY_IMPORT_ERROR: Exception | None = None
 try:
     import torch  # noqa: E402
     from transformers import AutoModelForSequenceClassification, AutoTokenizer  # noqa: E402
-except ImportError:  # pragma: no cover
+except ImportError as error:  # pragma: no cover
+    DEPENDENCY_IMPORT_ERROR = error
     torch = None
     AutoModelForSequenceClassification = None
     AutoTokenizer = None
@@ -41,7 +43,6 @@ LDA_TOPIC_TERMS_PATH = MODELS_DIR / "lda" / "lda_topic_terms.csv"
 LDA_DOCUMENT_TOPICS_PATH = MODELS_DIR / "lda" / "lda_document_topics.csv"
 LDA_VISUALIZATION_PATH = MODELS_DIR / "lda" / "lda_visualization.html"
 MODEL_DIR = MODELS_DIR / "indobert"
-SUMMARY_MD_PATH = PROJECT_ROOT / "RINGKASAN_HASIL.md"
 CONCLUSION_MD_PATH = PROJECT_ROOT / "BAB5_KESIMPULAN_DAN_SARAN.md"
 
 TOPIC_LABELS = {
@@ -214,7 +215,13 @@ def load_text_file(path: Path) -> str:
 @st.cache_resource
 def load_model():
     if torch is None or AutoTokenizer is None or AutoModelForSequenceClassification is None:
-        raise ImportError("Dependency transformers/torch belum tersedia.")
+        details = f" Detail import: {DEPENDENCY_IMPORT_ERROR}" if DEPENDENCY_IMPORT_ERROR else ""
+        raise ImportError(
+            "Dependency transformers/torch belum tersedia pada lingkungan Python yang menjalankan Streamlit. "
+            f"Python aktif: {sys.executable}. "
+            "Pasang dependency project dengan `pip install -r requirements.txt`."
+            f"{details}"
+        )
 
     tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
     model = AutoModelForSequenceClassification.from_pretrained(MODEL_DIR)
@@ -292,32 +299,6 @@ def render_sidebar(df: pd.DataFrame, training_summary: dict[str, object], lda_su
         """,
         unsafe_allow_html=True,
     )
-
-    st.sidebar.markdown("### Download Artefak")
-    st.sidebar.download_button(
-        "Download CSV Hasil Sentimen",
-        data=FINAL_RESULT_PATH.read_bytes(),
-        file_name=FINAL_RESULT_PATH.name,
-        mime="text/csv",
-        use_container_width=True,
-    )
-    if SUMMARY_MD_PATH.exists():
-        st.sidebar.download_button(
-            "Download Ringkasan Hasil",
-            data=SUMMARY_MD_PATH.read_text(encoding="utf-8"),
-            file_name=SUMMARY_MD_PATH.name,
-            mime="text/markdown",
-            use_container_width=True,
-        )
-    if CONCLUSION_MD_PATH.exists():
-        st.sidebar.download_button(
-            "Download Bab 5",
-            data=CONCLUSION_MD_PATH.read_text(encoding="utf-8"),
-            file_name=CONCLUSION_MD_PATH.name,
-            mime="text/markdown",
-            use_container_width=True,
-        )
-    return view_mode
 
 
 def render_hero(df: pd.DataFrame, training_summary: dict[str, object]) -> None:
@@ -427,7 +408,7 @@ def render_overview(df: pd.DataFrame, training_summary: dict[str, object], lda_s
         st.dataframe(
             counts.assign(percentage=counts["percentage"].map(lambda value: f"{value:.2f}%")),
             hide_index=True,
-            use_container_width=True,
+            width="stretch",
         )
 
     with col2:
@@ -446,11 +427,11 @@ def render_overview(df: pd.DataFrame, training_summary: dict[str, object], lda_s
     with image_col1:
         negative_wordcloud = VIS_DIR / "wordcloud_negative.png"
         if negative_wordcloud.exists():
-            st.image(str(negative_wordcloud), caption="Wordcloud Review Negatif", use_container_width=True)
+            st.image(str(negative_wordcloud), caption="Wordcloud Review Negatif", width="stretch")
     with image_col2:
         positive_wordcloud = VIS_DIR / "wordcloud_positive.png"
         if positive_wordcloud.exists():
-            st.image(str(positive_wordcloud), caption="Wordcloud Review Positif", use_container_width=True)
+            st.image(str(positive_wordcloud), caption="Wordcloud Review Positif", width="stretch")
 
 
 def render_dataset(df: pd.DataFrame) -> None:
@@ -480,7 +461,7 @@ def render_dataset(df: pd.DataFrame) -> None:
         for column in ["review_id", "score", "predicted_label", "confidence", "content", "content_clean"]
         if column in filtered_df.columns
     ]
-    st.dataframe(filtered_df[show_columns], use_container_width=True, hide_index=True)
+    st.dataframe(filtered_df[show_columns], width="stretch", hide_index=True)
 
 
 def render_model_metrics(training_summary: dict[str, object], test_predictions: pd.DataFrame) -> None:
@@ -512,15 +493,15 @@ def render_model_metrics(training_summary: dict[str, object], test_predictions: 
             )
     if report_rows:
         st.markdown("**Classification Report**")
-        st.dataframe(pd.DataFrame(report_rows), hide_index=True, use_container_width=True)
+        st.dataframe(pd.DataFrame(report_rows), hide_index=True, width="stretch")
 
     st.markdown("**Confusion Matrix**")
     labels = ["negative", "positive"][: len(confusion_matrix)]
     confusion_df = pd.DataFrame(confusion_matrix, index=labels, columns=labels)
-    st.dataframe(confusion_df, use_container_width=True)
+    st.dataframe(confusion_df, width="stretch")
 
     st.markdown("**Contoh Prediksi Test**")
-    st.dataframe(test_predictions.head(20), use_container_width=True, hide_index=True)
+    st.dataframe(test_predictions.head(20), width="stretch", hide_index=True)
 
 
 def render_topics(topic_terms: pd.DataFrame, document_topics: pd.DataFrame) -> None:
@@ -562,18 +543,18 @@ def render_topics(topic_terms: pd.DataFrame, document_topics: pd.DataFrame) -> N
         selected_terms = topic_terms[topic_terms["topic_id"] == selected_topic].sort_values(
             "weight", ascending=False
         )
-        st.dataframe(selected_terms, hide_index=True, use_container_width=True)
+        st.dataframe(selected_terms, hide_index=True, width="stretch")
 
         topic_image = VIS_DIR / f"lda_topic_{selected_topic}.png"
         if topic_image.exists():
-            st.image(str(topic_image), caption=f"Top Terms Topic {selected_topic}", use_container_width=True)
+            st.image(str(topic_image), caption=f"Top Terms Topic {selected_topic}", width="stretch")
 
     with right_col:
         st.markdown("**Contoh Review dalam Topik Ini**")
         selected_docs = document_topics[document_topics["dominant_topic"] == selected_topic][
             ["review_id", "dominant_score", "content", "content_clean"]
         ].head(15)
-        st.dataframe(selected_docs, hide_index=True, use_container_width=True)
+        st.dataframe(selected_docs, hide_index=True, width="stretch")
 
     if LDA_VISUALIZATION_PATH.exists():
         with st.expander("Buka HTML pyLDAvis"):
@@ -638,7 +619,7 @@ def render_recommendations_page(document_topics: pd.DataFrame) -> None:
             }
         )
     st.markdown("**Ringkasan objek keluhan negatif**")
-    st.dataframe(pd.DataFrame(summary_rows), hide_index=True, use_container_width=True)
+    st.dataframe(pd.DataFrame(summary_rows), hide_index=True, width="stretch")
 
     for topic_id in sorted(topic_counts.index.tolist()):
         config = recommendation_map.get(topic_id, {})
@@ -737,7 +718,7 @@ def render_conclusion_page(df: pd.DataFrame, training_summary: dict[str, object]
     st.dataframe(
         topic_preview[["topic_id", "nama_topik", "term"]],
         hide_index=True,
-        use_container_width=True,
+        width="stretch",
     )
 
     if CONCLUSION_MD_PATH.exists():
@@ -769,7 +750,7 @@ def render_live_prediction(df: pd.DataFrame) -> None:
                     st.dataframe(
                         examples.sort_values("confidence", ascending=False).head(5),
                         hide_index=True,
-                        use_container_width=True,
+                        width="stretch",
                     )
 
 

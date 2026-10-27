@@ -52,26 +52,31 @@ menyatakan prevalensi masalah pada seluruh pengguna.
 
 ## 📚 Dokumen Penelitian
 
-- [Bab III — Metodologi Penelitian](BAB3_METODOLOGI_PENELITIAN.md)
-- [Bab IV — Hasil dan Pembahasan](BAB4_HASIL_DAN_PEMBAHASAN.md)
-- [Bab V — Kesimpulan dan Saran](BAB5_KESIMPULAN_DAN_SARAN.md)
 - [Ringkasan Hasil](RINGKASAN_HASIL.md)
-- [Outline Presentasi Sidang](PPT_SIDANG_OUTLINE.md)
 - [Panduan Labeling](LABELING_GUIDE.md)
 
-## 🚀 Menjalankan Dashboard
+Bab skripsi dan materi sidang tidak disertakan dalam repository ini.
 
-Pastikan Python 3.12 dan [Git LFS](https://git-lfs.com/) tersedia. Bobot
-IndoBERT disimpan menggunakan Git LFS. Setelah clone, ambil file model dengan:
+## 🚀 Deploy Dashboard di Streamlit Community Cloud
+
+Dashboard dapat diterbitkan sebagai aplikasi Streamlit Cloud dari repository
+GitHub ini. Bobot IndoBERT tersimpan menggunakan Git LFS; Community Cloud
+mengambil file LFS saat proses deploy.
+
+1. Masuk ke [Streamlit Community Cloud](https://share.streamlit.io/) dan pilih
+   **Create app**.
+2. Pilih repository `Abysmaa/skripsi-bank-bjb`, branch `main`, dan file
+   `app.py`.
+3. Pada **Advanced settings**, gunakan Python 3.12.
+4. Pilih **Deploy** dan tunggu proses instalasi dependency serta pemuatan
+   model selesai.
+
+Jika menjalankan aplikasi secara lokal, pastikan Git LFS tersedia, lalu ambil
+model dan pasang dependency:
 
 ```powershell
 git lfs install
 git lfs pull
-```
-
-Dari direktori proyek, buat virtual environment dan pasang dependency:
-
-```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
@@ -95,7 +100,6 @@ skripsi-bank-bjb/
 |-- app.py
 |-- README.md
 |-- LABELING_GUIDE.md
-|-- bimbingan.txt
 |-- catatan.txt
 |-- data/
 |   |-- raw/
@@ -257,6 +261,6 @@ Hasil utama yang dihasilkan atau digunakan oleh pipeline:
 - `models/lda/lda_document_topics.csv` — topik dominan per dokumen
 - `data/final/visualizations/` — visualisasi hasil
 
-Untuk narasi hasil penelitian, lihat [Bab IV](BAB4_HASIL_DAN_PEMBAHASAN.md)
-dan [Ringkasan Hasil](RINGKASAN_HASIL.md). Gunakan angka dari artefak dan
-naskah terbaru secara konsisten saat memperbarui materi presentasi.
+Untuk ringkasan hasil publik, lihat [Ringkasan Hasil](RINGKASAN_HASIL.md).
+Gunakan angka dari artefak terbaru secara konsisten saat memperbarui materi
+presentasi.
