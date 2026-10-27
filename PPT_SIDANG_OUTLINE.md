@@ -45,51 +45,58 @@
 
 ## Slide 7: Dataset
 
-- Total ulasan terprediksi: 1.489
+- Total ulasan setelah preprocessing: 6.396
 - Distribusi hasil prediksi:
-- Positif: 966 review atau 64,88%
-- Negatif: 523 review atau 35,12%
+- Positif: 3.479 ulasan atau 54,39%
+- Negatif: 2.917 ulasan atau 45,61%
+- Catatan: inferensi menggunakan dua kelas; ulasan netral tidak menjadi kelas
+  tersendiri
 
 ## Slide 8: Hasil Evaluasi IndoBERT
 
-- Akurasi data uji: 0,9487
-- F1-score tertimbang: 0,9487
-- Precision negatif: 0,9400
-- Recall negatif: 0,9592
-- Precision positif: 0,9579
-- Recall positif: 0,9381
+- Data uji: 993 ulasan
+- Akurasi data uji: 92,75%
+- F1-score tertimbang: 92,75%
+- F1-score negatif: 92,84%
+- F1-score positif: 92,65%
+- Confusion matrix: 467 negatif dan 454 positif terklasifikasi benar
 
 ## Slide 9: Interpretasi Hasil Sentimen
 
 - Sentimen positif lebih dominan
-- Pengguna banyak menilai aplikasi membantu transaksi dan cukup mudah digunakan
-- Sentimen negatif terkonsentrasi pada masalah inti layanan
+- Selisih sentimen positif dan negatif sebesar 8,78 poin persentase
+- Proporsi negatif tetap besar dan perlu diperhatikan
+- Hasil menggambarkan ulasan yang dianalisis, bukan seluruh pengguna aplikasi
 
 ## Slide 10: Hasil Topic Modeling
 
-- Topik 0: aktivasi ulang, kesalahan kredensial, jaringan
-- Topik 1: transaksi error dan ketidakstabilan aplikasi
-- Topik 2: pembukaan rekening, aktivasi, saldo atau dana
-- Topik 3: login, password, dan gangguan pasca-update
+- Data LDA: 1.065 ulasan negatif terpilih
+- Topik 0 (20,85%): aktivasi, pembukaan rekening, dan koneksi
+- Topik 1 (21,97%): aktivasi pasca-pembaruan dan jaringan
+- Topik 2 (31,08%): login, password, dan akses akun
+- Topik 3 (26,10%): transaksi, saldo, dan transfer
 
 ## Slide 11: Pembahasan
 
-- Masalah utama ada pada proses inti, bukan hanya fitur tambahan
-- Persepsi keamanan dipengaruhi oleh kelancaran login, aktivasi, dan transaksi
-- Update aplikasi menjadi titik kritis yang sering memicu keluhan
+- Keluhan dalam ulasan terpilih berkaitan dengan akses akun dan transaksi
+- Persepsi keamanan pengguna beririsan dengan keandalan akses dan kejelasan
+  status layanan
+- Temuan ini adalah persepsi pengguna, bukan bukti adanya masalah keamanan
+  teknis
 
 ## Slide 12: Kesimpulan
 
 - Sentimen positif dominan, tetapi keluhan negatif masih signifikan
-- IndoBERT efektif untuk klasifikasi sentimen
-- LDA berhasil mengidentifikasi isu utama terkait keamanan dan keandalan
+- Akurasi IndoBERT pada data uji sebesar 92,75%
+- LDA mengelompokkan ulasan negatif terpilih ke dalam empat tema utama
+- Hasil menjelaskan polaritas dan tema ulasan, bukan kondisi keamanan teknis
 
 ## Slide 13: Saran
 
-- Perbaiki alur aktivasi dan pemulihan akun
-- Tingkatkan stabilitas login dan transaksi
-- Lengkapi data administratif pembukaan rekening
-- Perjelas penanganan transaksi gagal
+- Prioritaskan perbaikan alur aktivasi ulang, login, dan pemulihan akun
+- Tingkatkan kejelasan pesan kesalahan dan status transaksi
+- Pantau ulasan berdasarkan waktu dan versi aplikasi
+- Kembangkan penelitian lanjutan sesuai keterbatasan yang telah diuraikan
 
 ## Slide 14: Penutup
 
@@ -98,6 +105,9 @@
 
 ## Catatan Penyampaian
 
-- Tekankan angka utama sejak awal: 64,88% positif dan akurasi 0,9487
+- Tekankan angka utama sejak awal: 54,39% positif, 45,61% negatif, dan
+  akurasi uji 92,75%
 - Saat membahas topik, fokus pada implikasi bisnis dan pengalaman pengguna
+- Tegaskan bahwa hasil menggambarkan persepsi dari ulasan, bukan audit keamanan
+  teknis
 - Jangan membaca semua isi slide, cukup jelaskan poin pentingnya

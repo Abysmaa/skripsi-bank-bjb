@@ -1,31 +1,85 @@
-# Analisis Sentimen dan Topic Modeling Aspek Keamanan Aplikasi Digi bank bjb
+# 🔎 Analisis Sentimen Ulasan Digi bank bjb
 
-Project ini digunakan untuk penelitian skripsi data science yang berfokus pada
-analisis sentimen ulasan aplikasi Digi bank bjb menggunakan IndoBERT serta
-topic modeling LDA untuk mengidentifikasi isu utama terkait keamanan, akses,
-aktivasi, transaksi, rekening, dan saldo.
+**Penelitian skripsi | IndoBERT untuk klasifikasi sentimen · LDA untuk pemetaan topik**
 
-## Ringkasan Project
+Proyek ini menganalisis ulasan pengguna aplikasi Digi bank bjb di Google Play
+Store. Tujuannya adalah merangkum polaritas sentimen pengguna dan memahami
+tema keluhan yang muncul pada ulasan negatif terpilih—terutama seputar
+aktivasi, akses akun, transaksi, dan saldo.
 
-Pipeline aktif project saat ini:
+> **Ruang lingkup:** hasil penelitian menggambarkan pengalaman dan persepsi
+> yang disampaikan dalam ulasan. Hasil ini bukan audit, pengujian, atau bukti
+> keamanan teknis aplikasi.
 
-1. Scraping ulasan Google Play Store
-2. Preprocessing teks dan infer label awal dari score
-3. Semi-labeling dan anotasi manual
-4. Finalisasi dataset training
-5. Training IndoBERT
-6. Inferensi sentimen seluruh dataset
-7. Topic modeling LDA untuk review negatif terkait keamanan
-8. Visualisasi hasil
-9. Dashboard Streamlit untuk presentasi bimbingan dan sidang
+## ✨ Sekilas Hasil
 
-Hasil terbaru yang sudah tersedia di repo:
+| Indikator | Hasil |
+|---|---:|
+| Ulasan setelah preprocessing | **6.396** |
+| Sentimen positif | **3.479 (54,39%)** |
+| Sentimen negatif | **2.917 (45,61%)** |
+| Akurasi IndoBERT pada data uji | **92,75%** |
+| Data uji | **993 ulasan** |
+| Ulasan terpilih untuk LDA | **1.065** |
+| Jumlah topik LDA | **4** |
 
-- data mentah hasil scraping dan merge: `6.431` review
-- data yang dipakai untuk analisis: `6.396` review
-- hasil inferensi sentimen: `3.479` positif dan `2.917` negatif
-- akurasi test IndoBERT terbaru: `0.9275`
-- dokumen LDA terbaru: `1.065`
+Angka inferensi sentimen menggunakan klasifikasi dua kelas. Ulasan netral tidak
+ditampilkan sebagai kelas tersendiri pada hasil inferensi. Data LDA merupakan
+bagian dari ulasan negatif yang lolos penyaringan; proporsi topik tidak
+menyatakan prevalensi masalah pada seluruh pengguna.
+
+## 🧭 Alur Penelitian
+
+1. Mengumpulkan dan menggabungkan ulasan Google Play Store.
+2. Membersihkan teks, membentuk label awal dari rating, dan menyiapkan koreksi
+   label.
+3. Melatih dan mengevaluasi IndoBERT pada klasifikasi sentimen biner.
+4. Menginferensikan sentimen pada ulasan hasil preprocessing.
+5. Memilih ulasan negatif yang relevan untuk pemodelan topik LDA.
+6. Menyajikan hasil melalui visualisasi dan dashboard Streamlit.
+
+## 📌 Temuan Utama
+
+- Sentimen positif lebih banyak daripada sentimen negatif dengan selisih
+  **8,78 poin persentase**.
+- Pada data uji, IndoBERT mencatat akurasi **92,75%** dan F1-score tertimbang
+  **92,75%**.
+- Empat tema utama pada dokumen LDA terpilih berkaitan dengan aktivasi dan
+  pembukaan rekening, aktivasi pasca-pembaruan, login dan password, serta
+  transaksi dan saldo.
+- Temuan LDA berlaku untuk kumpulan dokumen yang dianalisis, bukan untuk
+  keseluruhan pengguna atau seluruh ulasan.
+
+## 📚 Dokumen Penelitian
+
+- [Bab III — Metodologi Penelitian](BAB3_METODOLOGI_PENELITIAN.md)
+- [Bab IV — Hasil dan Pembahasan](BAB4_HASIL_DAN_PEMBAHASAN.md)
+- [Bab V — Kesimpulan dan Saran](BAB5_KESIMPULAN_DAN_SARAN.md)
+- [Ringkasan Hasil](RINGKASAN_HASIL.md)
+- [Outline Presentasi Sidang](PPT_SIDANG_OUTLINE.md)
+- [Panduan Labeling](LABELING_GUIDE.md)
+
+## 🚀 Menjalankan Dashboard
+
+Pastikan Python 3.12 tersedia. Dari direktori proyek, buat virtual environment
+dan pasang dependency:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+Jalankan dashboard Streamlit:
+
+```powershell
+.\.venv\Scripts\python.exe -m streamlit run app.py
+```
+
+Secara default dashboard tersedia di `http://localhost:8501`.
+
+Dashboard menampilkan ringkasan sentimen, evaluasi model, eksplorasi ulasan,
+hasil topik LDA, rekomendasi, dan demo prediksi teks.
 
 ## Struktur Folder
 
@@ -100,76 +154,17 @@ Modul yang aktif dipakai sekarang:
 - `utils.py`
   Untuk path project, logging, dan helper CSV.
 
-## Yang Ditambahkan di Pipeline Baru
+## 🔍 Catatan Interpretasi
 
-Perubahan atau penambahan utama dibanding pipeline awal:
-
-- scraping 2024-2025 dengan `continuation_token`, checkpoint JSON, dan merge ke
-  file raw lama
-- `clean_content` dan `is_security` pada preprocessing baru
-- `batch_001.csv` untuk anotasi manual yang lebih sederhana
-- `auto_annotate.py` untuk koreksi otomatis `manual_label`
-- `check_annotation_progress.py` untuk memantau progres anotasi
-- training IndoBERT terbaru pada dataset final baru dengan mode biner
-- LDA terbaru dengan custom stopword domain agar top terms lebih bersih
-- sinkronisasi dashboard Streamlit ke hasil training, inferensi, dan LDA baru
-
-## Yang Masih Ada Tapi Tidak Lagi Menjadi Jalur Utama
-
-File atau artefak berikut masih ada di repo, tetapi saat ini bukan jalur utama
-pipeline:
-
-- `data/processed/bjb_reviews_semilabeled.csv`
-  Artefak lama dari pipeline semi-label sebelumnya.
-- `data/processed/bjb_reviews_manual_review.csv`
-  Template lama sebelum pipeline batch anotasi baru dipakai.
-- `batch_001_backup.csv`
-  Backup dari file anotasi otomatis. Bukan file kerja utama.
-- `models/indobert/checkpoints/`
-  Checkpoint training Hugging Face. Berguna untuk audit/troubleshooting, tetapi
-  bukan file yang dipakai langsung saat inferensi akhir.
-- `notebooks/*.ipynb`
-  Notebook eksplorasi/eksperimen. Pipeline utama sekarang memakai script di
-  folder `src/`.
-- `setup_project.py`
-  Berguna untuk setup awal struktur project, tetapi tidak perlu dijalankan
-  untuk workflow inti saat ini jika folder project sudah lengkap.
-- `scrape_2024_2025.out.log`, `scrape_2024_2025.err.log`,
-  `streamlit.out.log`, `streamlit.err.log`
-  File log sesi lokal, bukan bagian artefak ilmiah utama.
-
-## Yang Perlu Diperhatikan
-
-- Command `streamlit run app.py` mungkin tidak tersedia global di Windows Anda.
-  Di project ini yang aman adalah memakai interpreter `.venv`:
-
-```powershell
-.\.venv\Scripts\python.exe -m streamlit run app.py
-```
-
-- Dataset final training sekarang memakai kolom `clean_content`, bukan lagi
-  `content_clean` sebagai sumber utama baru. Script inti sudah disesuaikan agar
-  tetap kompatibel.
-
-- LDA saat ini dijalankan pada review negatif terkait keamanan setelah
-  filtering keyword, bukan pada seluruh review.
-
-## Virtual Environment
-
-Project ini memakai virtual environment lokal `.venv`.
-
-Aktivasi di PowerShell:
-
-```powershell
-cd "C:\skripshitt\analisis sentimen\skripsi-bank-bjb"
-.\.venv\Scripts\Activate.ps1
-```
-
-Install dependency:
-
-```powershell
-pip install -r requirements.txt
-```
+- Label awal dibentuk dari rating. Sebagian label dikoreksi menggunakan aturan
+  frasa; proses ini tidak boleh ditafsirkan sebagai anotasi manusia independen
+  untuk seluruh data.
+- Model akhir menggunakan dua kelas. Karena itu, distribusi inferensi tidak
+  menampilkan sentimen netral sebagai kelas tersendiri.
+- LDA dijalankan pada ulasan negatif terpilih setelah penyaringan kata kunci,
+  bukan pada seluruh dataset.
+- Topik LDA perlu dibaca bersama kata dominan dan isi ulasan. Nama topik adalah
+  interpretasi, bukan label otomatis yang diberikan model.
 
 ## Contoh Pipeline Aktif
 
@@ -241,75 +236,20 @@ pip install -r requirements.txt
 .\.venv\Scripts\python.exe -m streamlit run app.py
 ```
 
-## Artefak Output
+## 🗂️ Artefak Output
 
-Artefak utama yang aktif dipakai:
+Hasil utama yang dihasilkan atau digunakan oleh pipeline:
 
-- `data/raw/bjb_reviews_raw.csv`
-- `data/processed/bjb_reviews_clean.csv`
-- `data/processed/bjb_reviews_labeled.csv`
-- `data/processed/bjb_reviews_labeled_final.csv`
-- `data/final/bjb_sentiment_result.csv`
-- `models/indobert/training_summary.json`
-- `models/indobert/test_predictions.csv`
-- `models/lda/lda_topic_terms.csv`
-- `models/lda/lda_document_topics.csv`
-- `models/lda/lda_visualization.html`
-- `data/final/visualizations/*`
+- `data/raw/bjb_reviews_raw.csv` — ulasan mentah
+- `data/processed/bjb_reviews_clean.csv` — ulasan setelah preprocessing
+- `data/processed/bjb_reviews_labeled_final.csv` — label final
+- `data/final/bjb_sentiment_result.csv` — hasil inferensi sentimen
+- `models/indobert/training_summary.json` — ringkasan evaluasi IndoBERT
+- `models/indobert/test_predictions.csv` — prediksi pada data uji
+- `models/lda/lda_topic_terms.csv` — kata dominan topik
+- `models/lda/lda_document_topics.csv` — topik dominan per dokumen
+- `data/final/visualizations/` — visualisasi hasil
 
-## Analisis Project
-
-### Kekuatan project
-
-- pipeline end-to-end sudah lengkap dari scraping sampai dashboard
-- ada kombinasi kuantitatif dan tematik: IndoBERT + LDA
-- ada anotasi manual sehingga label akhir tidak murni bergantung pada score
-- ada dashboard presentasi yang memudahkan bimbingan dan sidang
-- hasil terbaru memakai dataset jauh lebih besar, sehingga lebih representatif
-
-### Titik yang sudah bagus
-
-- training script, inferensi, dan dashboard sudah sinkron ke hasil terbaru
-- LDA sudah diperbaiki dengan custom stopword sehingga top terms lebih tajam
-- ada helper anotasi (`auto_annotate.py` dan `check_annotation_progress.py`)
-- struktur output sudah cukup rapi untuk kebutuhan skripsi
-
-### Titik yang masih lemah atau perlu dicatat
-
-- `README.md`, `catatan.txt`, `bimbingan.txt`, Bab 4, Bab 5, dan outline PPT
-  perlu dijaga tetap konsisten ketika angka hasil berubah
-- masih ada artefak lama di `data/processed/` yang bisa membingungkan jika
-  tidak dibedakan antara pipeline lama dan baru
-- topik LDA masih memerlukan interpretasi peneliti, jadi jangan dianggap
-  otomatis final tanpa pembacaan konteks
-- belum ada baseline model klasik jika dosen meminta pembanding metodologis
-- beberapa token hasil LDA masih bisa diperketat lagi bila Anda ingin narasi
-  topik lebih tajam
-
-### Rekomendasi praktis
-
-- gunakan `bjb_reviews_labeled_final.csv`, `bjb_sentiment_result.csv`, dan
-  artefak `models/lda/` sebagai sumber angka utama
-- jadikan script di `src/` sebagai workflow resmi, bukan notebook
-- jika menulis skripsi, update Bab 4, Bab 5, ringkasan hasil, dan slide dari
-  angka artefak terbaru, bukan dari eksperimen awal
-- simpan file backup anotasi, tetapi gunakan hanya `batch_001.csv` sebagai file
-  kerja aktif
-
-## Dashboard
-
-Dashboard lokal tersedia di:
-
-```text
-http://localhost:8501
-```
-
-Fitur dashboard:
-
-- ringkasan distribusi sentimen
-- evaluasi IndoBERT
-- eksplorasi review hasil prediksi
-- topik LDA dan contoh dokumen
-- rekomendasi untuk Bank BJB
-- kesimpulan sidang
-- demo prediksi review baru
+Untuk narasi hasil penelitian, lihat [Bab IV](BAB4_HASIL_DAN_PEMBAHASAN.md)
+dan [Ringkasan Hasil](RINGKASAN_HASIL.md). Gunakan angka dari artefak dan
+naskah terbaru secara konsisten saat memperbarui materi presentasi.

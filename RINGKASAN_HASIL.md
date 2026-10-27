@@ -5,46 +5,49 @@ ulasan aplikasi Digi bank bjb berdasarkan artefak terbaru project.
 
 ## 1. Gambaran Hasil Utama
 
-Jumlah ulasan yang berhasil diprediksi adalah 1.489 review. Dari seluruh review
-tersebut, 966 review atau 64,88% diprediksi sebagai sentimen positif, sedangkan
-523 review atau 35,12% diprediksi sebagai sentimen negatif.
+Setelah preprocessing, terdapat 6.396 ulasan yang dianalisis. IndoBERT
+memprediksi 3.479 ulasan (54,39%) sebagai sentimen positif dan 2.917 ulasan
+(45,61%) sebagai sentimen negatif.
 
-Secara umum, hasil ini menunjukkan bahwa persepsi pengguna terhadap aplikasi
-masih didominasi sentimen positif. Namun demikian, proporsi sentimen negatif
-yang mencapai lebih dari sepertiga total ulasan tetap cukup besar dan tidak bisa
-diabaikan, terutama karena keluhan negatif banyak berkaitan dengan aspek
-aktivasi, login, transaksi, jaringan, dan pembukaan rekening.
+Sentimen positif lebih banyak dengan selisih 8,78 poin persentase. Namun,
+proporsi negatif yang masih besar menunjukkan bahwa keluhan pengguna tetap
+menjadi temuan penting. Hasil ini menggambarkan persepsi dalam ulasan yang
+dianalisis dan tidak mewakili seluruh pengguna aplikasi.
 
 ## 2. Kinerja Model IndoBERT
 
-Model IndoBERT dilatih menggunakan dataset final hasil penggabungan semi-label
-dan anotasi manual. Untuk tahap klasifikasi, eksperimen dijalankan dalam skema
-biner, yaitu label `negative` dan `positive`.
+Model IndoBERT dilatih menggunakan dataset final yang dijelaskan pada Bab III.
+Untuk tahap klasifikasi, eksperimen dijalankan dalam skema biner, yaitu label
+`negative` dan `positive`.
 
-Berdasarkan file `models/indobert/training_summary.json`, model menghasilkan:
+Hasil evaluasi model pada data uji sebanyak 993 ulasan adalah:
 
-- Akurasi data uji: 0,9487
-- F1-score tertimbang data uji: 0,9487
-- Precision kelas negatif: 0,9400
-- Recall kelas negatif: 0,9592
-- Precision kelas positif: 0,9579
-- Recall kelas positif: 0,9381
+- Akurasi data uji: 92,75%
+- F1-score tertimbang data uji: 92,75%
+- Precision kelas negatif: 91,75%
+- Recall kelas negatif: 93,96%
+- F1-score kelas negatif: 92,84%
+- Precision kelas positif: 93,80%
+- Recall kelas positif: 91,53%
+- F1-score kelas positif: 92,65%
 
-Hasil tersebut menunjukkan bahwa model memiliki performa yang tinggi dan relatif
-seimbang pada kedua kelas. Recall kelas negatif sedikit lebih tinggi daripada
-kelas positif. Hal ini berarti model cenderung cukup baik dalam menangkap review
-bernuansa keluhan, yang penting karena tujuan penelitian juga berkaitan dengan
-identifikasi masalah yang dirasakan pengguna.
+Hasil tersebut menunjukkan kinerja yang relatif seimbang pada dua kelas dalam
+data uji. Recall negatif sebesar 93,96% menunjukkan bahwa 467 dari 497 ulasan
+negatif pada data uji dikenali sebagai negatif. Metrik ini menilai kinerja pada
+data uji berlabel; hasilnya tidak dengan sendirinya menjamin ketepatan semua
+prediksi pada keseluruhan data.
 
 Confusion matrix pada data uji menunjukkan:
 
-- 94 review negatif terklasifikasi benar sebagai negatif
-- 91 review positif terklasifikasi benar sebagai positif
-- 4 review negatif salah diprediksi sebagai positif
-- 6 review positif salah diprediksi sebagai negatif
+- 467 ulasan negatif terklasifikasi benar sebagai negatif
+- 454 ulasan positif terklasifikasi benar sebagai positif
+- 30 ulasan negatif salah diprediksi sebagai positif
+- 42 ulasan positif salah diprediksi sebagai negatif
 
-Jumlah salah klasifikasi yang relatif kecil ini memperkuat bahwa model cukup
-andal untuk digunakan sebagai alat bantu analisis sentimen dalam penelitian.
+Hasil inferensi pada keseluruhan data mencakup dua kelas. Karena model akhir
+bersifat biner, 360 ulasan berlabel netral tidak menjadi kelas tersendiri pada
+inferensi; pada perbandingan dengan label akhir, 310 dipetakan ke negatif dan
+50 ke positif.
 
 ## 3. Interpretasi Distribusi Sentimen
 
@@ -65,67 +68,44 @@ bersifat kritis.
 
 ## 4. Hasil Topic Modeling LDA
 
-Topic modeling dilakukan pada 224 dokumen yang berfokus pada review negatif dan
-relevan dengan aspek keamanan atau risiko penggunaan. Model LDA menghasilkan 4
-topik utama dengan sebaran yang relatif merata:
+Topic modeling dilakukan pada 1.065 ulasan yang diprediksi negatif dan lolos
+penyaringan kata kunci terkait keamanan, akses, rekening, atau transaksi.
+Model LDA menghasilkan empat topik:
 
-- Topik 0: 65 dokumen atau 29,02%
-- Topik 1: 61 dokumen atau 27,23%
-- Topik 2: 43 dokumen atau 19,20%
-- Topik 3: 55 dokumen atau 24,55%
+- Topik 0: 222 dokumen atau 20,85% — aktivasi, pembukaan rekening, dan koneksi
+- Topik 1: 234 dokumen atau 21,97% — aktivasi pasca-pembaruan dan jaringan
+- Topik 2: 331 dokumen atau 31,08% — login, password, dan akses akun
+- Topik 3: 278 dokumen atau 26,10% — transaksi, saldo, dan transfer
 
-Berdasarkan kata dominan dan contoh dokumen, interpretasi tiap topik adalah
-sebagai berikut.
+Proporsi tersebut menunjukkan pembagian topik dominan pada dokumen yang masuk
+ke analisis LDA, bukan prevalensi masalah pada seluruh pengguna.
 
-### Topik 0: Masalah aktivasi ulang, kesalahan kredensial, dan gangguan jaringan
+### Topik 0: Aktivasi, pembukaan rekening, dan koneksi
 
-Kata yang paling sering muncul pada topik ini adalah `aktivasi`, `jaring`,
-`salah`, `update`, `susah`, `gagal`, dan `ulang`. Topik ini menggambarkan
-keluhan pengguna yang mengalami hambatan saat masuk ke aplikasi, khususnya
-setelah update, ketika password dianggap salah, atau saat harus melakukan
-aktivasi ulang tetapi sistem tidak merespons dengan baik.
+Kata dominan topik ini adalah `aktivasi`, `buka`, `gabisa`, `rekening`,
+`koneksi`, `jelek`, `pulsa`, `gagal`, `login`, dan `terputus`. Topik ini
+menggambarkan hambatan pada aktivasi, pembukaan rekening, koneksi, dan akses
+awal layanan.
 
-Topik ini menunjukkan bahwa aspek keamanan yang seharusnya melindungi akses
-pengguna justru dalam beberapa kasus dirasakan sebagai penghambat karena proses
-verifikasi dan aktivasi dianggap terlalu rentan gagal.
+### Topik 1: Aktivasi pasca-pembaruan dan gangguan jaringan
 
-### Topik 1: Ketidakstabilan aplikasi saat transaksi dan penggunaan harian
+Kata dominan pada topik ini adalah `aktivasi`, `update`, `pulsa`, `jaringan`,
+`gagal`, `masuk`, `baru`, `rekening`, `kali`, dan `nomor`. Topik ini
+menggambarkan keluhan mengenai aktivasi setelah pembaruan, jaringan, dan
+kegagalan masuk.
 
-Kata dominan pada topik ini antara lain `aplikasi`, `transaksi`, `bank`, `bjb`,
-`digi`, `rekening`, `transfer`, dan `hari`. Topik ini menggambarkan keluhan
-terhadap performa aplikasi saat digunakan untuk transaksi, termasuk transfer,
-akses rekening, atau penggunaan rutin yang sering terganggu error.
+### Topik 2: Login, password, dan hambatan akses akun
 
-Makna penting dari topik ini adalah bahwa persepsi keamanan pengguna tidak hanya
-terbentuk oleh perlindungan akun, tetapi juga oleh kestabilan sistem transaksi.
-Ketika transaksi sering gagal atau terhambat, pengguna dapat memandang aplikasi
-sebagai tidak andal dan berisiko.
+Kata dominan pada topik ini adalah `login`, `aktivasi`, `susah`, `jaringan`,
+`salah`, `ribet`, `data`, `password`, `masuk`, dan `ulang`. Topik terbesar ini
+menggambarkan kesulitan login, password yang dinyatakan salah, serta hambatan
+akses akun.
 
-### Topik 2: Hambatan pembukaan rekening, aktivasi, dan masalah saldo atau dana
+### Topik 3: Transaksi, saldo, dan transfer
 
-Kata dominan pada topik ini meliputi `aktivasi`, `rekening`, `gagal`, `buka`,
-`harus`, `camat`, `login`, dan `uang`. Topik ini memperlihatkan adanya masalah
-yang berkaitan dengan pembukaan rekening, data wilayah yang tidak tersedia,
-aktivasi akun baru, serta kasus saldo terpotong atau uang tidak kembali setelah
-transaksi gagal.
-
-Topik ini penting karena menyentuh dua isu sensitif sekaligus, yaitu akses awal
-ke layanan dan rasa aman terhadap dana nasabah. Dalam konteks layanan keuangan,
-keluhan seperti saldo terpotong atau transaksi gagal berpotensi menurunkan
-kepercayaan secara signifikan.
-
-### Topik 3: Login, password, dan gangguan akses pasca-pembaruan
-
-Kata dominan pada topik ini adalah `aplikasi`, `salah`, `login`, `jaring`,
-`aktivasi`, `update`, `password`, `nomor`, dan `tolong`. Topik ini sangat dekat
-dengan pengalaman pengguna yang tidak bisa masuk ke aplikasi karena password
-dianggap salah, nomor tidak terbaca, atau akses menjadi bermasalah setelah
-pembaruan sistem.
-
-Topik ini menunjukkan bahwa proses pembaruan aplikasi merupakan titik kritis.
-Jika setelah update pengguna justru gagal login atau harus melakukan aktivasi
-ulang dengan prosedur yang rumit, maka persepsi terhadap keamanan dan
-keandalan aplikasi akan ikut menurun.
+Kata dominan pada topik ini adalah `transaksi`, `saldo`, `lama`, `transfer`,
+`rekening`, `gagal`, `sering`, `hijau`, `hari`, dan `indikator`. Topik ini
+berkaitan dengan transaksi yang lambat atau gagal, saldo, dan transfer.
 
 ## 5. Pembahasan Temuan
 
@@ -140,10 +120,10 @@ Area tersebut adalah:
 - validitas data saat pembukaan rekening
 - rasa aman terhadap saldo dan proses transfer
 
-Artinya, masalah utama bukan terletak pada seluruh fitur aplikasi, melainkan
-pada proses yang paling menentukan kepercayaan pengguna. Dalam konteks mobile
-banking, gangguan kecil pada proses login, verifikasi, atau transaksi bisa
-langsung dianggap sebagai masalah keamanan maupun kualitas layanan.
+Hasil tersebut menunjukkan bahwa keluhan dalam kumpulan ulasan terpilih
+berkaitan dengan proses inti layanan. Temuan ini merupakan gambaran pengalaman
+dan persepsi yang disampaikan pengguna, bukan bukti adanya masalah keamanan
+teknis pada aplikasi.
 
 Temuan ini juga menunjukkan bahwa peningkatan fitur dan antarmuka saja belum
 cukup. Pengguna tetap akan memberikan ulasan negatif apabila proses dasar
@@ -164,22 +144,23 @@ bahan rekomendasi adalah:
 
 ## 7. Keterbatasan
 
-Beberapa keterbatasan yang perlu dicatat:
+Beberapa batasan yang perlu diingat saat menafsirkan hasil:
 
-- model klasifikasi akhir dijalankan dalam skema biner, sehingga kelas neutral
-  tidak menjadi fokus utama pada inferensi akhir
-- topic modeling sangat dipengaruhi oleh hasil preprocessing dan kata yang
-  tersisa setelah normalisasi
-- ulasan yang sangat singkat, sarkastik, atau ambigu tetap berpotensi
-  menimbulkan salah interpretasi
+- hasil inferensi menggunakan dua kelas, sehingga ulasan netral tidak
+  ditampilkan sebagai kelas tersendiri
+- dokumen LDA merupakan ulasan negatif yang diprediksi model dan lolos
+  penyaringan kata kunci; keluhan lain dapat tidak terwakili
+- hasil ulasan merepresentasikan persepsi pengguna yang menulis ulasan, bukan
+  keseluruhan pengguna atau kondisi teknis aplikasi
+- ulasan singkat, sarkastik, atau ambigu tetap berpotensi menimbulkan salah
+  interpretasi
 
 ## 8. Kesimpulan Singkat
 
-Secara keseluruhan, aplikasi Digi bank bjb memperoleh sentimen positif yang
-lebih dominan, tetapi masih memiliki titik lemah yang konsisten pada aspek
-aktivasi, login, jaringan, transaksi, dan pembukaan rekening. Model IndoBERT
-menunjukkan performa yang baik untuk memetakan sentimen pengguna, sedangkan LDA
-berhasil mengekstraksi isu utama yang relevan dengan keamanan dan keandalan
-layanan. Dengan demikian, kombinasi IndoBERT dan LDA efektif digunakan untuk
-memberikan gambaran kuantitatif sekaligus tematik terhadap pengalaman pengguna
-mobile banking.
+Secara keseluruhan, sentimen positif lebih banyak daripada sentimen negatif
+pada 6.396 ulasan yang dianalisis. Evaluasi pada data uji mencatat akurasi
+IndoBERT sebesar 92,75%, sedangkan LDA memetakan empat kelompok isu pada 1.065
+ulasan negatif terpilih. Temuan tematik terutama berkaitan dengan aktivasi,
+login, jaringan, transaksi, saldo, dan transfer. Hasil ini merangkum persepsi
+yang muncul dalam ulasan dan tidak dimaksudkan sebagai penilaian keamanan
+teknis aplikasi.
