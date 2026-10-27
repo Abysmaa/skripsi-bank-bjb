@@ -61,8 +61,15 @@ menyatakan prevalensi masalah pada seluruh pengguna.
 
 ## 🚀 Menjalankan Dashboard
 
-Pastikan Python 3.12 tersedia. Dari direktori proyek, buat virtual environment
-dan pasang dependency:
+Pastikan Python 3.12 dan [Git LFS](https://git-lfs.com/) tersedia. Bobot
+IndoBERT disimpan menggunakan Git LFS. Setelah clone, ambil file model dengan:
+
+```powershell
+git lfs install
+git lfs pull
+```
+
+Dari direktori proyek, buat virtual environment dan pasang dependency:
 
 ```powershell
 python -m venv .venv
